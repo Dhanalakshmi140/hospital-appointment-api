@@ -1,10 +1,10 @@
 generator client {
-  provider     = "prisma-client"
-  output       = "../generated/prisma"
-  moduleFormat = "cjs"
+  provider = "prisma-client-js"
 }
+
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Patient {
@@ -12,9 +12,8 @@ model Patient {
   name         String
   email        String        @unique
   phone        String?
-  dateOfBirth  DateTime?     @db.Date @map("date_of_birth")
-  createdAt    DateTime      @default(now()) @db.Timestamp(6) @map("created_at")
-
+  dateOfBirth  DateTime?     @map("date_of_birth") @db.Date
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
   appointments Appointment[]
 
   @@map("patients")
@@ -25,24 +24,23 @@ model Doctor {
   name         String
   specialty    String
   email        String        @unique
-  createdAt    DateTime      @default(now()) @db.Timestamp(6) @map("created_at")
-
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
   appointments Appointment[]
 
   @@map("doctors")
 }
 
 model Appointment {
-  id               Int      @id @default(autoincrement())
-  patientId        Int      @map("patient_id")
-  doctorId         Int      @map("doctor_id")
-  appointmentDate  DateTime @db.Timestamp(6) @map("appointment_date")
-  status           String   @default("scheduled")
-  notes            String?
-  createdAt        DateTime @default(now()) @db.Timestamp(6) @map("created_at")
+  id              Int      @id @default(autoincrement())
+  patientId       Int      @map("patient_id")
+  doctorId        Int      @map("doctor_id")
+  appointmentDate DateTime @map("appointment_date") @db.Timestamp(6)
+  status          String   @default("scheduled")
+  notes           String?
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp(6)
 
+  doctor  Doctor  @relation(fields: [doctorId], references: [id], onDelete: Restrict, onUpdate: NoAction)
   patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  doctor  Doctor  @relation(fields: [doctorId], references: [id], onUpdate: NoAction)
 
   @@map("appointments")
 }
